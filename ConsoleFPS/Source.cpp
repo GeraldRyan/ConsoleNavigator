@@ -3,6 +3,9 @@ using namespace std;
 
 #include <windows.h>
 #include <chrono>
+#include <vector>
+#include <algorithm>
+
 
 int nScreenWidth = 120;
 int nScreenHeight = 40;
@@ -93,6 +96,7 @@ int main()
 
 			float fDistanceToWall = 0;
 			bool bHitWall = false;
+			bool bBoundary = false;
 
 			float fEyeX = sinf(fRayAngle); // unit vector for ray in player space
 			float fEyeY = cosf(fRayAngle);
@@ -117,6 +121,31 @@ int main()
 					if (map[nTestY * nMapWidth + nTestX] == '#')
 					{
 						bHitWall = true;
+
+						// create borders on cells through advanced angle calculations
+
+						vector<pair<float, float>> p; // storing distance and dot product 
+
+						for (int tx=0; tx < 2; tx++)
+						
+							for (int ty=0; ty < 2; ty++)
+							{
+								float vy = (float)nTestY + ty - fPlayerY;
+								float vx = (float)nTestX + tx - fPlayerX;
+								float d = sqrt(vx*vx + vy * vy);
+								float dot = (fEyeX*vx / d) + (fEyeY*vy / d);
+								p.push_back(make_pair(d, dot));	
+							}
+						
+						// sort pairs from closest to farthest
+						sort(p.begin(), p.end(), [](const pair<float, float>&left, const pair<float, float> &right) {return left.first < right.first; });
+
+						float fBound = 0.01; // angle specified. if dot product less, we can assume rays hit boundary of cell
+						if (acos(p.at(0).second) < fBound) bBoundary = true;
+						if (acos(p.at(1).second) < fBound) bBoundary = true;
+						if (acos(p.at(2).second) < fBound) bBoundary = true;
+
+						
 					}
 				}
 			}
@@ -132,6 +161,8 @@ int main()
 			else if (fDistanceToWall < fDepth / 2.0f)	nShade = 0x2592;
 			else if (fDistanceToWall < fDepth)	nShade = 0x2591;
 			else nShade = ' ';
+
+			if (bBoundary) nShade = ' ';	 // black it out of boundary
 
 
 
