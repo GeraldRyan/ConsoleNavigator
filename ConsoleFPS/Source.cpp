@@ -63,6 +63,14 @@ int main()
 		{
 			fPlayerX += sinf(fPlayerA)*5.0f*fElapsedTime;
 			fPlayerY += cosf(fPlayerA)*5.0f*fElapsedTime;
+			
+			// Collision detection walking forwards
+			if (map[(int)fPlayerY*nMapWidth + (int)fPlayerX] == '#')
+			{
+				fPlayerX -= sinf(fPlayerA)*5.0f*fElapsedTime;
+				fPlayerY -= cosf(fPlayerA)*5.0f*fElapsedTime;
+			}
+
 
 		}
 		if (GetAsyncKeyState((unsigned short)'S') & 0x8000)
@@ -70,6 +78,12 @@ int main()
 			fPlayerX -= sinf(fPlayerA)*5.0f*fElapsedTime;
 			fPlayerY -= cosf(fPlayerA)*5.0f*fElapsedTime;
 
+			// Collision detection, walking backwards
+			if (map[(int)fPlayerY*nMapWidth + (int)fPlayerX] == '#')
+			{
+				fPlayerX += sinf(fPlayerA)*5.0f*fElapsedTime;
+				fPlayerY += cosf(fPlayerA)*5.0f*fElapsedTime;
+			}
 		}
 
 		for (int x = 0; x < nScreenWidth; x++)
@@ -153,9 +167,11 @@ int main()
 
 
 
-	for (int i = 0; i < 1000000; i++)
-	cout << "Hello " << i << endl;
-
 
 	return 0;
 }
+
+/* Questions to answer
+Why is the screen height and width different from the map? 
+
+*/
